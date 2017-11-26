@@ -3,10 +3,13 @@ require "active_support/core_ext/date"
 
 require "calendar_api/client"
 
+require "harvest_api/client"
+
 require "time_tracker/version"
 require "time_tracker/event"
 
 module TimeTracker
+  harvest_api = HarvestApi::Client.instance
   calendar_api = CalendarApi::Client.instance
   calendar_id = 'primary'
 
