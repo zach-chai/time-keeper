@@ -56,6 +56,31 @@ module TimeTracker
       end
       events
     end
+
+    def sync_events opts = {}
+      untracked_events = calendar_events opts
+      tracked_events = harvest_events opts
+      synced_events = untracked_events.select { |e| tracked_events.include? e }
+      create_events = untracked_events.reject { |e| synced_events.include? e }
+      delete_events = tracked_events.reject { |e| synced_events.include? e }
+
+      create_harvest_events create_events
+      true
+    end
+
+    def create_harvest_events events
+      events.each do |event|
+        payload = {
+          project_id: PROJECT_ID,
+          task_id: MEETING_TASK_ID,
+          spent_date: event.spent_date,
+          hours: event.hours,
+          notes: event.title
+        }
+
+        harvest_api.time_entries.create(payload)
+      end
+    end
   end
 end
 
