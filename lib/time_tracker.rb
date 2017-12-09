@@ -16,10 +16,11 @@ module TimeTracker
       untracked_events = Calendar.fetch_events opts
       tracked_events = Timesheet.fetch_events opts
       synced_events = untracked_events.select { |e| tracked_events.include? e }
-      create_events = untracked_events.reject { |e| synced_events.include? e }
-      delete_events = tracked_events.reject { |e| synced_events.include? e }
+      unsynced_events = untracked_events.reject { |e| synced_events.include? e }
+      unknown_events = tracked_events.reject { |e| synced_events.include? e }
 
-      Timesheet.create_events create_events
+      Timesheet.delete_events unknown_events
+      Timesheet.create_events unsynced_events
       true
     end
   end

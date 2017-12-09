@@ -1,6 +1,6 @@
 module TimeTracker
   class TimeEntry
-    attr_accessor :start_time, :end_time, :date, :duration, :title, :description
+    attr_accessor :id, :start_time, :end_time, :date, :duration, :title, :description
 
     def self.build_from(external_event)
       if external_event.is_a? Google::Apis::CalendarV3::Event
@@ -11,6 +11,7 @@ module TimeTracker
         event
       elsif external_event.is_a? Harvest::Resource::TimeEntry
         event = self.new
+        event.id =  external_event.id
         event.title = external_event.notes
         event.date = external_event.spent_date
         event.duration = external_event.hours
@@ -27,11 +28,12 @@ module TimeTracker
     end
 
     def hours
-      if duration
-        duration
-      else
-        (end_time - start_time) / 3600
-      end
+      actual = if duration
+                 duration
+               else
+                 (end_time - start_time) / 3600
+               end
+      actual.round(2)
     end
 
     def == other

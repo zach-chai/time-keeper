@@ -18,6 +18,10 @@ module TimeTracker
         create_tasks MEETING_TASK_ID, events
       end
 
+      def delete_events *opts
+        delete_tasks *opts
+      end
+
       private
 
       def fetch_tasks task_id, opts = {}
@@ -47,6 +51,12 @@ module TimeTracker
           }
 
           timesheet.time_entries.create(payload)
+        end
+      end
+
+      def delete_tasks time_entries
+        time_entries.each do |time_entry|
+          timesheet.time_entries.delete(time_entry.id)
         end
       end
     end
