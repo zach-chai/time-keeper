@@ -4,7 +4,7 @@ require 'googleauth/stores/file_token_store'
 
 require 'fileutils'
 
-module CalendarApi
+module GoogleCalendarApi
   OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
   APPLICATION_NAME = 'Time Tracker Script'
   CLIENT_SECRETS_PATH = 'client_secret.json'
