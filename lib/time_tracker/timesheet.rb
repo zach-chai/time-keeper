@@ -3,7 +3,8 @@ require 'time_tracker/time_entry'
 module TimeTracker
   class Timesheet
     PROJECT_ID = 12499555
-    MEETING_TASK_ID = 6998455
+    ENG_OVERHEAD_TASK_ID = 6998455
+    NON_ENG_OVERHEAD_TASK_ID = 7479470
 
     class << self
       def timesheet
@@ -11,11 +12,11 @@ module TimeTracker
       end
 
       def fetch_events opts = {}
-        fetch_tasks MEETING_TASK_ID, opts
+        fetch_tasks [ENG_OVERHEAD_TASK_ID, NON_ENG_OVERHEAD_TASK_ID], opts
       end
 
       def create_events events
-        create_tasks MEETING_TASK_ID, events
+        create_tasks ENG_OVERHEAD_TASK_ID, events
       end
 
       def delete_events *opts
@@ -24,14 +25,14 @@ module TimeTracker
 
       private
 
-      def fetch_tasks task_id, opts = {}
+      def fetch_tasks task_ids, opts = {}
         opts[:start_time] ||= Time.now.beginning_of_week.iso8601
         opts[:end_time] ||= Time.now.iso8601
 
         res = timesheet.time_entries.all(from: opts[:start_time],
                                           to: opts[:end_time])
 
-        time_entries = res.select {|te| te.task['id'] == task_id}
+        time_entries = res.select {|te| task_ids.include?(te.task['id'])}
         Time.zone = 'America/Toronto'
         events = []
         time_entries.each do |event|
