@@ -13,21 +13,23 @@ require 'time_tracker/timesheet'
 module TimeTracker
   class << self
     def sync_events opts = {}
-      untracked_events = Calendar.fetch_events opts
-      tracked_events = Timesheet.fetch_events opts
+      untracked_events = Calendar.instance.fetch_events opts
+      tracked_events = Timesheet.instance.fetch_events opts
       synced_events = untracked_events.select { |e| tracked_events.include? e }
       unsynced_events = untracked_events.reject { |e| synced_events.include? e }
       unknown_events = tracked_events.reject { |e| synced_events.include? e }
 
-      Timesheet.delete_events unknown_events
-      Timesheet.create_events unsynced_events
+      Timesheet.instance.delete_events unknown_events
+      Timesheet.instance.create_events unsynced_events
       true
     end
   end
 end
 
-# h_events = TimeTracker::Timesheet.fetch_events start_time: Time.now.beginning_of_day.iso8601
-# c_events = TimeTracker::Calendar.fetch_events start_time: Time.now.beginning_of_day.iso8601
+# h_events = TimeTracker::Timesheet.instance.fetch_events
+#               start_time: Time.now.beginning_of_day.iso8601
+# c_events = TimeTracker::Calendar.instance.fetch_events
+#               start_time: Time.now.beginning_of_day.iso8601
 
 # TimeTracker.sync_events
 
