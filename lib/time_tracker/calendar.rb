@@ -2,13 +2,6 @@ require 'time_tracker/time_entry'
 
 module TimeTracker
   class Calendar
-    def self.instance
-      if @instance
-        return @instance
-      end
-      self.new
-    end
-
     def calendar_api
       GoogleCalendarApi::Client.instance
     end
@@ -17,6 +10,8 @@ module TimeTracker
       if @events
         return @events
       end
+      puts "Calendar fetching events from network"
+
       opts[:start_time] ||= Time.now.beginning_of_week.iso8601
       opts[:end_time] ||= Time.now.iso8601
       opts[:calendar_id] ||= 'primary'

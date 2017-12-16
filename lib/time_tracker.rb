@@ -11,27 +11,53 @@ require 'time_tracker/timesheet'
 
 
 module TimeTracker
-  class << self
-    def sync_events opts = {}
-      untracked_events = Calendar.instance.fetch_events opts
-      tracked_events = Timesheet.instance.fetch_events opts
-      synced_events = untracked_events.select { |e| tracked_events.include? e }
-      unsynced_events = untracked_events.reject { |e| synced_events.include? e }
-      unknown_events = tracked_events.reject { |e| synced_events.include? e }
+  class Main
+    def initialize opts = {}
+      @opts = opts
+      @timesheet = Timesheet.new
+      @calendar = Calendar.new
+    end
 
-      Timesheet.instance.delete_events unknown_events
-      Timesheet.instance.create_events unsynced_events
-      true
+    def sync_events
+      @timesheet.delete_tasks unknown_events
+      @timesheet.create_tasks Timesheet::ENG_OVERHEAD_TASK_ID, unsynced_events
+    end
+
+    private
+
+    def untracked_events
+      @calendar.fetch_events @opts
+    end
+
+    def tracked_events
+      @timesheet.fetch_tasks [Timesheet::ENG_OVERHEAD_TASK_ID, Timesheet::NON_ENG_OVERHEAD_TASK_ID],
+                             @opts
+    end
+
+    def synced_events
+      untracked_events.select { |e| tracked_events.include? e }
+    end
+
+    def unsynced_events
+      untracked_events.reject { |e| synced_events.include? e }
+    end
+
+    def unknown_events
+      tracked_events.reject { |e| synced_events.include? e }
     end
   end
 end
 
-# h_events = TimeTracker::Timesheet.instance.fetch_events
-#               start_time: Time.now.beginning_of_day.iso8601
-# c_events = TimeTracker::Calendar.instance.fetch_events
-#               start_time: Time.now.beginning_of_day.iso8601
+# time_tracker = TimeTracker::Main.new
+#                 start_time: Time.now.beginning_of_day.iso8601
 
-# TimeTracker.sync_events
+# tracked_events = time_tracker.send(:tracked_events)
+# untracked_events = time_tracker.send(:untracked_events)
+# synced_events = time_tracker.send(:synced_events)
+# unsynced_events = time_tracker.send(:unsynced_events)
+# unknown_events = time_tracker.send(:unknown_events)
+
+# time_tracker.sync_events
 
 # byebug
 # puts events
