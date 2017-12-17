@@ -2,6 +2,10 @@ module TimeTracker
   class TimeEntry
     attr_accessor :id, :task_id, :start_time, :end_time, :date, :duration, :title, :description
 
+    HOLIDAY_TITLE = 'Holiday'.freeze
+    VACATION_TITLE = 'Vacation'.freeze
+    SICK_TITLE = 'Sick'.freeze
+
     def self.build_from(external_event)
       if external_event.is_a? Google::Apis::CalendarV3::Event
         event = self.new
@@ -18,6 +22,16 @@ module TimeTracker
         event.duration = external_event.hours
         event
       end
+    end
+
+    def initialize props = {}
+      @id = props[:id]
+      @task_id = props[:task_id]
+      @start_time = props[:start_time]
+      @end_time = props[:end_time]
+      @date = props[:date]
+      @duration = props[:duration]
+      @title = props[:title]
     end
 
     def spent_date

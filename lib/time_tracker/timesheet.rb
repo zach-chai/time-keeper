@@ -9,6 +9,14 @@ module TimeTracker
     HOLIDAY_TASK_ID = 6998451
     VACATION_TASK_ID = 6908970
     SICK_LEAVE_TASK_ID = 6998447
+    ALL_TASK_IDS = [
+                    ENG_OVERHEAD_TASK_ID,
+                    NON_ENG_OVERHEAD_TASK_ID,
+                    DEVELOPMENT_TASK_ID,
+                    HOLIDAY_TASK_ID,
+                    VACATION_TASK_ID,
+                    SICK_LEAVE_TASK_ID
+                   ].freeze
 
     def timesheet
       HarvestApi::Client.instance
@@ -18,8 +26,8 @@ module TimeTracker
       filter_tasks *args
     end
 
-    def create_tasks *args
-      create *args
+    def create_tasks time_entries
+      create time_entries
     end
 
     def delete_tasks *args
@@ -28,8 +36,8 @@ module TimeTracker
 
     private
 
-    def filter_tasks task_ids, opts = {}
-      fetch(opts).select {|te| task_ids.include?(te.task_id)}
+    def filter_tasks task_ids, date, opts = {}
+      fetch(opts).select {|te| task_ids.include?(te.task_id) && te.spent_date == date}
     end
 
     def fetch opts = {}
@@ -52,11 +60,11 @@ module TimeTracker
       @tasks
     end
 
-    def create task_id, time_entries
+    def create time_entries
       time_entries.each do |time_entry|
         payload = {
           project_id: PROJECT_ID,
-          task_id: task_id,
+          task_id: time_entry.task_id,
           spent_date: time_entry.spent_date,
           hours: time_entry.hours,
           notes: time_entry.title

@@ -18,46 +18,72 @@ module TimeTracker
       @calendar = Calendar.new
     end
 
-    def sync_events
-      @timesheet.delete_tasks unknown_events
-      @timesheet.create_tasks Timesheet::ENG_OVERHEAD_TASK_ID, unsynced_events
+    def sync
+      grouped = untracked_events.group_by {|e| e.spent_date}
+      grouped.each do |date, events|
+        titles = events.map(&:title)
+        if titles.include?(title = TimeEntry::HOLIDAY_TITLE)
+          all_day_event date, Timesheet::HOLIDAY_TASK_ID, title
+        elsif titles.include?(title = TimeEntry::VACATION_TITLE)
+          all_day_event date, Timesheet::VACATION_TASK_ID, title
+        elsif titles.include?(title = TimeEntry::SICK_TITLE)
+          all_day_event date, Timesheet::SICK_LEAVE_TASK_ID, title
+        else
+          synced_tasks = synced_events date, events
+          unknown_events = tracked_events(date).reject { |e| synced_tasks.include? e }
+          unsynced_events = events.reject { |e| synced_tasks.include? e }
+          unsynced_events.each {|ue| ue.task_id = Timesheet::ENG_OVERHEAD_TASK_ID}
+
+          @timesheet.delete_tasks(unknown_events)
+          @timesheet.create_tasks(unsynced_events)
+        end
+      end
+    end
+
+    def all_day_event date, task_id, title
+      tasks = tracked_tasks date
+
+      time_entry = TimeEntry.new(
+                     task_id: Timesheet::HOLIDAY_TASK_ID,
+                     date: date,
+                     duration: 8,
+                     title: title
+                   )
+
+      unless tasks.include?(time_entry)
+        @timesheet.create_tasks [time_entry]
+      end
     end
 
     private
+
+    def tracked_tasks date, tasks = Timesheet::ALL_TASK_IDS
+      @timesheet.fetch_tasks tasks, date, @opts
+    end
 
     def untracked_events
       @calendar.fetch_events @opts
     end
 
-    def tracked_events
-      @timesheet.fetch_tasks [Timesheet::ENG_OVERHEAD_TASK_ID, Timesheet::NON_ENG_OVERHEAD_TASK_ID],
-                             @opts
+    def synced_events date, events
+      events.select do |event|
+        tracked_tasks(
+          date,
+          [Timesheet::ENG_OVERHEAD_TASK_ID, Timesheet::NON_ENG_OVERHEAD_TASK_ID]
+        ).include? event
+      end
     end
 
-    def synced_events
-      untracked_events.select { |e| tracked_events.include? e }
-    end
-
-    def unsynced_events
-      untracked_events.reject { |e| synced_events.include? e }
-    end
-
-    def unknown_events
-      tracked_events.reject { |e| synced_events.include? e }
+    def tracked_events date
+      tracked_tasks date, [Timesheet::ENG_OVERHEAD_TASK_ID, Timesheet::NON_ENG_OVERHEAD_TASK_ID]
     end
   end
 end
 
-# time_tracker = TimeTracker::Main.new
+time_tracker = TimeTracker::Main.new
 #                 start_time: Time.now.beginning_of_day.iso8601
 
-# tracked_events = time_tracker.send(:tracked_events)
-# untracked_events = time_tracker.send(:untracked_events)
-# synced_events = time_tracker.send(:synced_events)
-# unsynced_events = time_tracker.send(:unsynced_events)
-# unknown_events = time_tracker.send(:unknown_events)
-
-# time_tracker.sync_events
+# time_tracker.sync
 
 # byebug
 # puts events
