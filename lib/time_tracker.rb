@@ -44,7 +44,7 @@ module TimeTracker
       tasks = tracked_tasks date
 
       time_entry = TimeEntry.new(
-                     task_id: Timesheet::HOLIDAY_TASK_ID,
+                     task_id: task_id,
                      date: date,
                      duration: 8,
                      title: title
@@ -84,6 +84,6 @@ time_tracker = TimeTracker::Main.new
 #                 start_time: Time.now.beginning_of_day.iso8601
 
 # time_tracker.sync
-
+#
 # byebug
 # puts events

@@ -6,12 +6,17 @@ module TimeTracker
     VACATION_TITLE = 'Vacation'.freeze
     SICK_TITLE = 'Sick'.freeze
 
-    def self.build_from(external_event)
+    def self.build_from(external_event, opts = {})
       if external_event.is_a? Google::Apis::CalendarV3::Event
         event = self.new
         event.title = external_event.summary
-        event.start_time = Time.parse(external_event.start.date_time.iso8601)
-        event.end_time = Time.parse(external_event.end.date_time.iso8601)
+        if opts[:date]
+          event.date = opts[:date].iso8601
+          event.duration = 8
+        else
+          event.start_time = Time.parse(external_event.start.date_time.iso8601)
+          event.end_time = Time.parse(external_event.end.date_time.iso8601)
+        end
         event
       elsif external_event.is_a? Harvest::Resource::TimeEntry
         event = self.new
