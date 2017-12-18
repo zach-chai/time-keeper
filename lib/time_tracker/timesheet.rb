@@ -46,8 +46,8 @@ module TimeTracker
       end
       puts "Timesheet fetching tasks from network"
 
-      opts[:start_time] ||= Time.now.beginning_of_week.iso8601
-      opts[:end_time] ||= Time.now.iso8601
+      opts[:start_time] ||= Time.current.beginning_of_week.iso8601
+      opts[:end_time] ||= Time.current.iso8601
 
       res = timesheet.time_entries.all(from: opts[:start_time],
                                         to: opts[:end_time])

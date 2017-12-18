@@ -12,8 +12,8 @@ module TimeTracker
       end
       puts "Calendar fetching events from network"
 
-      opts[:start_time] ||= Time.now.beginning_of_week.iso8601
-      opts[:end_time] ||= Time.now.iso8601
+      opts[:start_time] ||= Time.current.beginning_of_week.iso8601
+      opts[:end_time] ||= Time.current.iso8601
       opts[:calendar_id] ||= 'primary'
 
       res = calendar_api.list_events(opts[:calendar_id],

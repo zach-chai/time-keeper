@@ -16,6 +16,7 @@ module TimeTracker
       @opts = opts
       @timesheet = Timesheet.new
       @calendar = Calendar.new
+      Time.zone = 'America/Toronto'
     end
 
     def sync
@@ -23,36 +24,50 @@ module TimeTracker
       grouped.each do |date, events|
         titles = events.map(&:title)
         if titles.include?(title = TimeEntry::HOLIDAY_TITLE)
-          all_day_event date, Timesheet::HOLIDAY_TASK_ID, title
+          sync_task date, Timesheet::HOLIDAY_TASK_ID, title, 8
         elsif titles.include?(title = TimeEntry::VACATION_TITLE)
-          all_day_event date, Timesheet::VACATION_TASK_ID, title
+          sync_task date, Timesheet::VACATION_TASK_ID, title, 8
         elsif titles.include?(title = TimeEntry::SICK_TITLE)
-          all_day_event date, Timesheet::SICK_LEAVE_TASK_ID, title
+          sync_task date, Timesheet::SICK_LEAVE_TASK_ID, title, 8
         else
-          synced_tasks = synced_events date, events
-          unknown_events = tracked_events(date).reject { |e| synced_tasks.include? e }
-          unsynced_events = events.reject { |e| synced_tasks.include? e }
-          unsynced_events.each {|ue| ue.task_id = Timesheet::ENG_OVERHEAD_TASK_ID}
+          sync_events date, events
 
-          @timesheet.delete_tasks(unknown_events)
-          @timesheet.create_tasks(unsynced_events)
+          sync_task(date,
+                    Timesheet::DEVELOPMENT_TASK_ID,
+                    TimeEntry::DEVELOPMENT_TITLE,
+                    8 - events.map(&:hours).reduce(0, :+))
         end
       end
+      true
     end
 
-    def all_day_event date, task_id, title
+    def sync_task date, task_id, title, duration
       tasks = tracked_tasks date
 
       time_entry = TimeEntry.new(
                      task_id: task_id,
                      date: date,
-                     duration: 8,
+                     duration: duration,
                      title: title
                    )
+      invalid_tasks = tasks.select do|t|
+                        t.title == title && t.task_id == task_id && t.hours != duration
+                      end
 
+      @timesheet.delete_tasks(invalid_tasks)
       unless tasks.include?(time_entry)
         @timesheet.create_tasks [time_entry]
       end
+    end
+
+    def sync_events date, events
+      synced_tasks = synced_events date, events
+      unknown_events = tracked_events(date).reject { |e| synced_tasks.include? e }
+      unsynced_events = events.reject { |e| synced_tasks.include? e }
+      unsynced_events.each {|ue| ue.task_id = Timesheet::ENG_OVERHEAD_TASK_ID}
+
+      @timesheet.delete_tasks(unknown_events)
+      @timesheet.create_tasks(unsynced_events)
     end
 
     private
@@ -81,7 +96,7 @@ module TimeTracker
 end
 
 time_tracker = TimeTracker::Main.new
-#                 start_time: Time.now.beginning_of_day.iso8601
+#                 start_time: Time.current.beginning_of_day.iso8601
 
 # time_tracker.sync
 #

@@ -5,6 +5,7 @@ module TimeTracker
     HOLIDAY_TITLE = 'Holiday'.freeze
     VACATION_TITLE = 'Vacation'.freeze
     SICK_TITLE = 'Sick'.freeze
+    DEVELOPMENT_TITLE = 'Research and Development'.freeze
 
     def self.build_from(external_event, opts = {})
       if external_event.is_a? Google::Apis::CalendarV3::Event
