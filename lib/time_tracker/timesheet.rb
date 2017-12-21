@@ -22,6 +22,10 @@ module TimeTracker
       HarvestApi::Client.instance
     end
 
+    def initialize opts = {}
+      @opts = opts
+    end
+
     def fetch_tasks *args
       filter_tasks *args
     end
@@ -36,21 +40,21 @@ module TimeTracker
 
     private
 
-    def filter_tasks task_ids, date, opts = {}
-      fetch(opts).select {|te| task_ids.include?(te.task_id) && te.spent_date == date}
+    def filter_tasks task_ids, date
+      fetch.select {|te| task_ids.include?(te.task_id) && te.spent_date == date}
     end
 
-    def fetch opts = {}
+    def fetch
       if @tasks
         return @tasks
       end
       puts "Timesheet fetching tasks from network"
 
-      opts[:start_time] ||= Time.current.beginning_of_week.iso8601
-      opts[:end_time] ||= Time.current.iso8601
+      @opts[:start_time] ||= Time.current.beginning_of_week.iso8601
+      @opts[:end_time] ||= Time.current.iso8601
 
-      res = timesheet.time_entries.all(from: opts[:start_time],
-                                        to: opts[:end_time])
+      res = timesheet.time_entries.all(from: @opts[:start_time],
+                                        to: @opts[:end_time])
 
       Time.zone = 'America/Toronto'
       @tasks = []
@@ -62,21 +66,29 @@ module TimeTracker
 
     def create time_entries
       time_entries.each do |time_entry|
-        payload = {
-          project_id: PROJECT_ID,
-          task_id: time_entry.task_id,
-          spent_date: time_entry.spent_date,
-          hours: time_entry.hours,
-          notes: time_entry.title
-        }
+        if @opts[:dry_run]
+          puts "Add '#{time_entry.title}' on #{time_entry.spent_date} for #{time_entry.hours} hours"
+        else
+          payload = {
+            project_id: PROJECT_ID,
+            task_id: time_entry.task_id,
+            spent_date: time_entry.spent_date,
+            hours: time_entry.hours,
+            notes: time_entry.title
+          }
 
-        timesheet.time_entries.create(payload)
+          timesheet.time_entries.create(payload)
+        end
       end
     end
 
     def delete time_entries
       time_entries.each do |time_entry|
-        timesheet.time_entries.delete(time_entry.id)
+        if @opts[:dry_run]
+          puts "Remove '#{time_entry.title}' on #{time_entry.spent_date} for #{time_entry.hours} hours"
+        else
+          timesheet.time_entries.delete(time_entry.id)
+        end
       end
     end
   end

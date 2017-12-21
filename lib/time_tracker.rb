@@ -14,8 +14,8 @@ module TimeTracker
   class Main
     def initialize opts = {}
       @opts = opts
-      @timesheet = Timesheet.new
-      @calendar = Calendar.new
+      @timesheet = Timesheet.new opts
+      @calendar = Calendar.new opts
       Time.zone = 'America/Toronto'
     end
 
@@ -73,11 +73,11 @@ module TimeTracker
     private
 
     def tracked_tasks date, tasks = Timesheet::ALL_TASK_IDS
-      @timesheet.fetch_tasks tasks, date, @opts
+      @timesheet.fetch_tasks tasks, date
     end
 
     def untracked_events
-      @calendar.fetch_events @opts
+      @calendar.fetch_events
     end
 
     def synced_events date, events
@@ -95,7 +95,7 @@ module TimeTracker
   end
 end
 
-time_tracker = TimeTracker::Main.new
+time_tracker = TimeTracker::Main.new dry_run: true
 #                 start_time: Time.current.beginning_of_day.iso8601
 
 # time_tracker.sync
