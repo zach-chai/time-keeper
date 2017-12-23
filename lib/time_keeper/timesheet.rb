@@ -1,6 +1,6 @@
-require 'time_tracker/time_entry'
+require 'time_keeper/time_entry'
 
-module TimeTracker
+module TimeKeeper
   class Timesheet
     PROJECT_ID = 12499555
     ENG_OVERHEAD_TASK_ID = 6998455
