@@ -18,13 +18,15 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install time_keeper
+    $ gem install time-keeper
 
 ## Setup
 
-Download `client_secret.json` file from your Google Application and place in root directory.
+Create `.credentials` directory
 
-Create .yaml file with harvest credentials
+Download `client_secret.json` file from your Google Application and place in the new directory.
+
+Create `harvest-api.yaml` file with harvest credentials and place in the new directory
 ```yaml
 access_token: '1dsf9df9hg'
 account_id: '385937'
@@ -33,7 +35,9 @@ user_agent: 'TimeKeeper (example@email.com)'
 
 ## Usage
 
-TODO: Write usage instructions here
+```
+docker-compose run --rm gem exe/time-keeper sync --dry-run
+```
 
 ## License
 

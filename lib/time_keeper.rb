@@ -95,9 +95,9 @@ module TimeKeeper
   end
 end
 
-time_keeper = TimeKeeper::Main.new dry_run: true
+# time_keeper = TimeKeeper::Main.new dry_run: true
 #                 start_time: Time.current.beginning_of_day.iso8601
-
+#
 # time_keeper.sync
 #
 # byebug

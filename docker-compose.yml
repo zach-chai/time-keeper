@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/opt/time_tracker
+      - ./.credentials:/root/.credentials
       - gem_cache:/usr/local/bundle
     command: bash
 

@@ -7,9 +7,12 @@ require 'fileutils'
 module GoogleCalendarApi
   OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
   APPLICATION_NAME = 'Time Tracker Script'
-  CLIENT_SECRETS_PATH = 'client_secret.json'
-  CREDENTIALS_PATH = File.join('/opt/time_tracker', '.credentials',
-                               "google-api.yaml")
+  CLIENT_SECRETS_PATH = File.join(Dir.home,
+                                  '.credentials',
+                                  'client_secret.json')
+  CREDENTIALS_PATH = File.join(Dir.home,
+                              '.credentials',
+                              'google-api.yaml')
   SCOPE = Google::Apis::CalendarV3::AUTH_CALENDAR_READONLY
 
   class Client
