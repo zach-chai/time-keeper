@@ -5,12 +5,12 @@ require 'google_calendar_api/client'
 
 require 'harvest_api/client'
 
-require 'time_tracker/version'
-require 'time_tracker/calendar'
-require 'time_tracker/timesheet'
+require 'time_keeper/version'
+require 'time_keeper/calendar'
+require 'time_keeper/timesheet'
 
 
-module TimeTracker
+module TimeKeeper
   class Main
     def initialize opts = {}
       @opts = opts
@@ -95,10 +95,10 @@ module TimeTracker
   end
 end
 
-time_tracker = TimeTracker::Main.new dry_run: true
+time_keeper = TimeKeeper::Main.new dry_run: true
 #                 start_time: Time.current.beginning_of_day.iso8601
 
-# time_tracker.sync
+# time_keeper.sync
 #
 # byebug
 # puts events

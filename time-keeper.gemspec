@@ -1,17 +1,17 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "time_tracker/version"
+require "time_keeper/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "time_tracker"
-  spec.version       = TimeTracker::VERSION
+  spec.name          = "time-keeper"
+  spec.version       = TimeKeeper::VERSION
   spec.authors       = ["Zachary Chai"]
   spec.email         = ["zachary.chai@outlook.com"]
 
   spec.summary       = %q{Automate time tracking}
   spec.description   = %q{Automate time tracking by integrating calendar with timesheets}
-  spec.homepage      = "https://github.com/zach-chai/time-tracker"
+  spec.homepage      = "https://github.com/zach-chai/time-keeper"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|

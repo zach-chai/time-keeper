@@ -1,6 +1,6 @@
-require 'time_tracker/time_entry'
+require 'time_keeper/time_entry'
 
-module TimeTracker
+module TimeKeeper
   class Calendar
     def calendar_api
       GoogleCalendarApi::Client.instance
@@ -35,10 +35,10 @@ module TimeTracker
 
         if event_range.length > 1
           (week_dates & event_range[0...-1]).each do |date|
-            @events << TimeTracker::TimeEntry.build_from(event, date: date)
+            @events << TimeKeeper::TimeEntry.build_from(event, date: date)
           end
         else
-          @events << TimeTracker::TimeEntry.build_from(event)
+          @events << TimeKeeper::TimeEntry.build_from(event)
         end
       end
       @events

@@ -1,4 +1,4 @@
-module TimeTracker
+module TimeKeeper
   class TimeEntry
     attr_accessor :id, :task_id, :start_time, :end_time, :date, :duration, :title, :description
 
