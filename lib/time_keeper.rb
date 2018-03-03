@@ -2,12 +2,13 @@ require 'active_support/core_ext/time'
 require 'active_support/core_ext/date'
 
 require 'google_calendar_api/client'
-
 require 'harvest_api/client'
+require 'pivotal_api/client'
 
 require 'time_keeper/version'
 require 'time_keeper/calendar'
 require 'time_keeper/timesheet'
+require 'time_keeper/task_tracker'
 
 
 module TimeKeeper
