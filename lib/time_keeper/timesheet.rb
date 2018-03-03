@@ -70,7 +70,7 @@ module TimeKeeper
             task_id: time_entry.task_id,
             spent_date: time_entry.spent_date,
             hours: time_entry.hours,
-            notes: time_entry.title
+            notes: time_entry.title_and_description
           }
 
           timesheet.time_entries.create(payload)
