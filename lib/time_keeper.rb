@@ -17,6 +17,7 @@ module TimeKeeper
       @opts = opts
       @timesheet = Timesheet.new opts
       @calendar = Calendar.new opts
+      @task_tracker = TaskTracker.new opts
       Time.zone = 'America/Toronto'
     end
 
@@ -36,20 +37,22 @@ module TimeKeeper
           sync_task(date,
                     Timesheet::DEVELOPMENT_TASK_ID,
                     TimeEntry::DEVELOPMENT_TITLE,
-                    8 - events.map(&:hours).reduce(0, :+))
+                    8 - events.map(&:hours).reduce(0, :+),
+                    time_entry_description(date))
         end
       end
       true
     end
 
-    def sync_task date, task_id, title, duration
+    def sync_task date, task_id, title, duration, description = nil
       tasks = tracked_tasks date
 
       time_entry = TimeEntry.new(
                      task_id: task_id,
                      date: date,
                      duration: duration,
-                     title: title
+                     title: title,
+                     description: description
                    )
       invalid_tasks = tasks.select do|t|
                         t.title == title && t.task_id == task_id && t.hours != duration
@@ -92,6 +95,17 @@ module TimeKeeper
 
     def tracked_events date
       tracked_tasks date, [Timesheet::ENG_OVERHEAD_TASK_ID, Timesheet::NON_ENG_OVERHEAD_TASK_ID]
+    end
+
+    def time_entry_description(date)
+      desc =  "\n"
+      desc += "--- Generated ---\n"
+      desc += "Tasks Delivered:\n"
+      @task_tracker.tasks_delivered(Date.parse(date)).each do |task|
+        desc += "'#{task.name}' #{task.url}\n"
+      end
+      desc += "---------------\n"
+      desc
     end
   end
 end

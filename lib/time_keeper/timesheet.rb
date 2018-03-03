@@ -59,7 +59,7 @@ module TimeKeeper
       Time.zone = 'America/Toronto'
       @tasks = []
       res.each do |task|
-        @tasks << TimeTracker::TimeEntry.build_from(task)
+        @tasks << TimeKeeper::TimeEntry.build_from(task)
       end
       @tasks
     end
@@ -74,7 +74,7 @@ module TimeKeeper
             task_id: time_entry.task_id,
             spent_date: time_entry.spent_date,
             hours: time_entry.hours,
-            notes: time_entry.title
+            notes: time_entry.full_description
           }
 
           timesheet.time_entries.create(payload)

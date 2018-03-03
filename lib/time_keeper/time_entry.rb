@@ -38,6 +38,15 @@ module TimeKeeper
       @date = props[:date]
       @duration = props[:duration]
       @title = props[:title]
+      @description = props[:description]
+    end
+
+    def full_description
+      if task_id == 6908966
+        title + description
+      else
+        title
+      end
     end
 
     def spent_date
@@ -61,7 +70,7 @@ module TimeKeeper
       unless other.instance_of? self.class
         return false
       end
-      spent_date == other.spent_date && title == other.title && hours == other.hours
+      spent_date == other.spent_date && (title == other.title || (task_id == other.task_id && task_id == 6908966)) && hours == other.hours
     end
   end
 end
