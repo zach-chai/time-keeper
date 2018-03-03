@@ -10,7 +10,7 @@ module TimeKeeper
     def self.build_from(external_event, opts = {})
       if external_event.is_a? Google::Apis::CalendarV3::Event
         event = self.new
-        event.title = external_event.summary
+        event.title = external_event.summary.strip rescue ''
         if opts[:date]
           event.date = opts[:date].iso8601
           event.duration = 8
@@ -23,9 +23,15 @@ module TimeKeeper
         event = self.new
         event.id =  external_event.id
         event.task_id = external_event.task['id']
-        event.title = external_event.notes
         event.date = external_event.spent_date
         event.duration = external_event.hours
+        notes = YAML.load(external_event.notes) rescue ''
+        if notes.is_a? String
+          event.title = notes
+        elsif notes.is_a? Hash
+          event.title = notes[:title]
+          event.description = notes[:description]
+        end
         event
       end
     end
@@ -38,6 +44,14 @@ module TimeKeeper
       @date = props[:date]
       @duration = props[:duration]
       @title = props[:title]
+      @description = props[:description]
+    end
+
+    def title_and_description
+      {
+        title: title,
+        description: description
+      }.compact.to_yaml
     end
 
     def spent_date
@@ -58,10 +72,8 @@ module TimeKeeper
     end
 
     def == other
-      unless other.instance_of? self.class
-        return false
-      end
-      spent_date == other.spent_date && title == other.title && hours == other.hours
+      return false unless other.instance_of? self.class
+      spent_date == other.spent_date && title == other.title && hours == other.hours && description == other.description
     end
   end
 end
