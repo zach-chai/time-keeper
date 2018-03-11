@@ -8,17 +8,17 @@ module TimeKeeper
 
     def initialize opts = {}
       @opts = opts
+      @opts[:calendar_id] ||= 'primary'
     end
 
     def fetch_events
       if @events
         return @events
       end
-      puts "Calendar fetching events from network"
+      puts "Calendar fetching events via network"
 
-      @opts[:start_time] ||= Time.current.beginning_of_week.iso8601
-      @opts[:end_time] ||= Time.current.iso8601
-      @opts[:calendar_id] ||= 'primary'
+      @events = []
+      week_dates = (Time.parse(@opts[:start_time]).to_date .. Time.parse(@opts[:end_time]).to_date).to_a
 
       res = calendar_api.list_events(@opts[:calendar_id],
         max_results: 25,
@@ -26,8 +26,7 @@ module TimeKeeper
         order_by: 'startTime',
         time_min: @opts[:start_time],
         time_max: @opts[:end_time])
-      @events = []
-      week_dates = (Time.parse(@opts[:start_time]).to_date .. Time.parse(@opts[:end_time]).to_date).to_a
+
       res.items.each do |event|
         start_date = event.start.date || event.start.date_time.to_date.iso8601
         end_date = event.end.date || event.end.date_time.to_date.iso8601

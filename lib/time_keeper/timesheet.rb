@@ -48,16 +48,12 @@ module TimeKeeper
       if @tasks
         return @tasks
       end
-      puts "Timesheet fetching tasks from network"
-
-      @opts[:start_time] ||= Time.current.beginning_of_week.iso8601
-      @opts[:end_time] ||= Time.current.iso8601
-
-      res = timesheet.time_entries.all(from: @opts[:start_time],
-                                        to: @opts[:end_time])
-
-      Time.zone = 'America/Toronto'
+      puts "Timesheet fetching tasks via network"
       @tasks = []
+      Time.zone = 'America/Toronto'
+      res = timesheet.time_entries.all(from: @opts[:start_time],
+                                       to: @opts[:end_time])
+
       res.each do |task|
         @tasks << TimeKeeper::TimeEntry.build_from(task)
       end
