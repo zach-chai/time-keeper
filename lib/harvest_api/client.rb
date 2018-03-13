@@ -14,7 +14,6 @@ module HarvestApi
       @client = Harvest.client(access_token: credentials['access_token'],
                                account_id: credentials['account_id'],
                                user_agent: credentials['user_agent'])
-      @client
     end
   end
 end
